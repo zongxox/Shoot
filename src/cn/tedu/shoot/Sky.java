@@ -17,4 +17,9 @@ public class Sky extends FlyingObject{
     public BufferedImage getImage(){
         return Images.sky;//返回sky圖片
     }
+
+    //獲取y1座標
+    public int gety1(){
+        return y1;
+    }
 }
