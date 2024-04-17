@@ -1,12 +1,13 @@
 package cn.tedu.shoot;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Arrays;
 
 //遊戲視窗
 public class World extends JPanel {
@@ -38,20 +39,6 @@ public class World extends JPanel {
         }
     }
 
-    //重寫paint
-    public void paint(Graphics g) {
-        g.drawImage(sky.getImage(), sky.x, sky.y, null);//背景1
-        g.drawImage(sky.getImage(), sky.x, sky.gety1(), null);//背景2
-        g.drawImage(hero.getImage(), hero.x, hero.y, null);//英雄機
-        for (int i = 0; i < enemies.length; i++) {//所有敵人
-            FlyingObject f = enemies[i]; //獲取每一個敵人
-            g.drawImage(f.getImage(), f.x, f.y, null);//循環敵人
-        }
-        for (int i = 0; i < bullets.length; i++) {
-            Bullet b = bullets[i];
-            g.drawImage(b.getImage(), b.x, b.y, null);//循環子彈
-        }
-    }
 
     //敵人入場記數
     private int enterIndex = 0;
@@ -79,8 +66,32 @@ public class World extends JPanel {
         }
     }
 
+    //飛行物移動
+    public void stepAction() {//每10毫秒走一次
+        sky.step();//飛行物移動
+        for (int i = 0; i < enemies.length; i++) {//循環所有敵人
+            enemies[i].step();//敵人移動
+        }
+        for (int i = 0; i < bullets.length; i++) {
+            bullets[i].step();//子彈移動
+        }
+    }
+
     //啟動代碼的執行
     public void action() {
+        //滑鼠監聽器
+
+        MouseAdapter m = new MouseAdapter() {
+            //重寫mouseMoved滑鼠移動事件
+            public void mouseMoved(MouseEvent e) {
+                int x = e.getX();//獲取滑鼠x座標
+                int y = e.getY();//獲取滑鼠x座標
+                hero.moveTo(x, y);//英雄機移動
+            }
+        };//滑鼠監聽器
+        this.addMouseListener(m);
+        this.addMouseMotionListener(m);
+
         Timer timer = new Timer();//定時器對象
         int intervel = 10;//定時間格
         timer.schedule(new TimerTask() {
@@ -88,12 +99,27 @@ public class World extends JPanel {
             public void run() {//每10毫秒跑一次
                 enterAction();//每10毫秒敵人入場一次
                 shootAction();//每10毫秒子彈入場一次
+                stepAction();//飛行物移動
                 repaint();//重新調用paint
             }
         }, intervel, intervel);//定時計畫表
 
     }
 
+    //重寫paint
+    public void paint(Graphics g) {
+        g.drawImage(sky.getImage(), sky.x, sky.y, null);//背景1
+        g.drawImage(sky.getImage(), sky.x, sky.gety1(), null);//背景2
+        g.drawImage(hero.getImage(), hero.x, hero.y, null);//英雄機
+        for (int i = 0; i < enemies.length; i++) {//所有敵人
+            FlyingObject f = enemies[i]; //獲取每一個敵人
+            g.drawImage(f.getImage(), f.x, f.y, null);//循環敵人
+        }
+        for (int i = 0; i < bullets.length; i++) {
+            Bullet b = bullets[i];
+            g.drawImage(b.getImage(), b.x, b.y, null);//循環子彈
+        }
+    }
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();

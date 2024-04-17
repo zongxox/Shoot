@@ -25,7 +25,7 @@ public abstract class FlyingObject {
         this.height = height;//圖片高
         Random rand = new Random();//隨機數
         x = rand.nextInt(World.WIDTH - width);//圖片x座標,x:0到(窗口寬-圖片寬度)內的隨機數,初始座標
-        y = height;//圖片y座標,初始座標
+        y = -height;//敵人圖片y座標,初始座標
     }
 
     //構造方法:專門給英雄機,天空,子彈提供的
@@ -53,5 +53,8 @@ public abstract class FlyingObject {
     public boolean isRemove(){
         return state==REMOVE;
     }
+
+    //飛行物移動
+    public abstract void step();
 
 }

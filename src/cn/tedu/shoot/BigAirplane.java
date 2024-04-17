@@ -5,12 +5,12 @@ import java.util.Random;
 
 //大敵機
 //繼承飛行物
-public class BigAirplane extends FlyingObject{
+public class BigAirplane extends FlyingObject {
     private int speed;//移動速度
 
     //構造方法
-    public BigAirplane(){
-        super(66,89);
+    public BigAirplane() {
+        super(66, 89);
         speed = 2;//大敵機圖片移動速度
     }
 
@@ -28,5 +28,10 @@ public class BigAirplane extends FlyingObject{
             return img;//返回爆破圖
         }
         return null;//死的和刪除的,不返回圖片
+    }
+
+    //重寫step() 飛行物移動
+    public void step() {
+        y += speed;//向下
     }
 }

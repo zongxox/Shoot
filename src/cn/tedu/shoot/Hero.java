@@ -44,6 +44,15 @@ public class Hero extends FlyingObject {
             bs[0] = new Bullet(this.x + 2 * xStep, this.y - yStep);
             return bs;
         }
+    }
 
+    //重寫step() 飛行物移動
+    public void step() {
+    }
+
+    //英雄機移動,跟滑鼠一起移動,滑鼠x座標,滑鼠y座標
+    public void moveTo(int x, int y) {
+        this.x = x - this.width / 2;
+        this.y = y - this.height / 2;
     }
 }

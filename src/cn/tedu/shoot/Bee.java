@@ -5,14 +5,14 @@ import java.util.Random;
 
 //小蜜蜂
 //繼承飛行物
-public class Bee extends FlyingObject{
+public class Bee extends FlyingObject {
     private int xSpeed;//x座標移動速度
     private int ySpeed;//y座標移動速度
     private int awardType; //英雄機打到之後給予獎勵類型
 
     //構造方法
-    public Bee(){
-        super(60,51);
+    public Bee() {
+        super(60, 51);
         Random rand = new Random();//隨機數
         xSpeed = 1;//小蜜蜂圖片x座標移動速度,左右移動
         ySpeed = 2;//小蜜蜂圖片y座標移動速度,朝下移動
@@ -33,5 +33,14 @@ public class Bee extends FlyingObject{
             return img;//返回爆破圖
         }
         return null;//死的和刪除的,不返回圖片
+    }
+
+    //重寫step() 飛行物移動
+    public void step() {
+        x += xSpeed;//向左或右
+        y += ySpeed;//向下
+        if (x <= 0 || x >= World.WIDTH - width) {
+           xSpeed *= -1;//則切換方向(正變負,負變正)
+        }
     }
 }

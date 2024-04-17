@@ -30,4 +30,9 @@ public class Airplane extends FlyingObject {
         return null;//死的和刪除的,不返回圖片
     }
 
+    //重寫step() 飛行物移動
+    public void step() {
+        y += speed;//向下
+    }
+
 }
