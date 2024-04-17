@@ -77,10 +77,25 @@ public class World extends JPanel {
         }
     }
 
+    //刪除超過視窗的子彈和敵人,優化內存
+    public void outOfBoundsAction(){
+        for (int i = 0; i < enemies.length; i++){//敵人
+            if (enemies[i].isOutOfBounds()){
+                enemies[i] = enemies[enemies.length-1];
+                enemies = Arrays.copyOf(enemies, enemies.length-1);
+            }
+        }
+        for (int i = 0; i < bullets.length; i++){//子彈
+            if (bullets[i].isOutOfBounds()){
+                bullets[i] = bullets[bullets.length-1];
+                bullets = Arrays.copyOf(bullets, bullets.length-1);
+            }
+        }
+    }
+
     //啟動代碼的執行
     public void action() {
         //滑鼠監聽器
-
         MouseAdapter m = new MouseAdapter() {
             //重寫mouseMoved滑鼠移動事件
             public void mouseMoved(MouseEvent e) {
@@ -100,6 +115,7 @@ public class World extends JPanel {
                 enterAction();//每10毫秒敵人入場一次
                 shootAction();//每10毫秒子彈入場一次
                 stepAction();//飛行物移動
+                outOfBoundsAction();//刪除超過視窗的子彈和敵人
                 repaint();//重新調用paint
             }
         }, intervel, intervel);//定時計畫表

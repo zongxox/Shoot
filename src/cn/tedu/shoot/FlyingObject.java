@@ -57,4 +57,9 @@ public abstract class FlyingObject {
     //飛行物移動
     public abstract void step();
 
+    //檢測敵人是否超過視窗
+    public boolean isOutOfBounds(){
+        return y >= World.HEIGHT; //敵人超過窗口的高,代表超出窗口
+    }
+
 }

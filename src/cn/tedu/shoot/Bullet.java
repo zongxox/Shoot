@@ -27,5 +27,10 @@ public class Bullet extends FlyingObject {
     public void step() {
         y -= speed;//向上
     }
+
+    //重寫isOutOfBounds檢測子彈是否超過視窗
+    public boolean isOutOfBounds(){
+        return y <= -height; //子彈超過窗口的高,代表超出窗口
+    }
 }
 
