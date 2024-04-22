@@ -55,4 +55,29 @@ public class Hero extends FlyingObject {
         this.x = x - this.width / 2;
         this.y = y - this.height / 2;
     }
+
+    //英雄機增加火力
+    public void addFire(){
+        fire += 40;//火力增加40
+    }
+
+    //英雄機增加命
+    public void addLife(){
+        life++;//英雄機命數增加1
+    }
+
+    //獲取英雄機命數
+    public int getLife(){
+        return life;//返回命數
+    }
+
+    //英雄機減少1命
+    public void subtractLife(){
+        life --;//命數減1
+    }
+
+    //初始化英雄機火力值
+    public void clearFire(){
+        fire = 0;//火力值初始化
+    }
 }

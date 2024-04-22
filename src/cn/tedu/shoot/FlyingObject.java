@@ -40,26 +40,46 @@ public abstract class FlyingObject {
     public abstract BufferedImage getImage();
 
     //判斷對象狀態是否活者
-    public boolean isLive(){
-        return state==LIVE;
+    public boolean isLive() {
+        return state == LIVE;
     }
 
     //判斷對象狀態是否爆破
-    public boolean isDead(){
-        return state==DEAD;
+    public boolean isDead() {
+        return state == DEAD;
     }
 
     //判斷對象狀態是否死的
-    public boolean isRemove(){
-        return state==REMOVE;
+    public boolean isRemove() {
+        return state == REMOVE;
     }
 
     //飛行物移動
     public abstract void step();
 
     //檢測敵人是否超過視窗
-    public boolean isOutOfBounds(){
+    public boolean isOutOfBounds() {
         return y >= World.HEIGHT; //敵人超過窗口的高,代表超出窗口
     }
+
+    //檢測碰撞
+    public boolean isHit(FlyingObject other) {
+        int x1 = this.x - other.width; //x1:敵人的x - 子彈or英雄機的寬
+        int x2 = this.x + this.width;  //x2:敵人的x + 敵人寬
+        int y1 = this.y - other.height;//y1:敵人的y - 子彈or英雄機的高
+        int y2 = this.y + this.height; //y2:敵人的y + 敵人高
+        int x = other.x;               //子彈or英雄機的x
+        int y = other.y;               //子彈or英雄機的y
+
+        //x在x1與x2之間,並且,y在y1與y2之間,即為撞上了
+        return x >= x1 && x <= x2 && y >= y1 && y <= y2;
+    }
+
+    //飛行物死去
+    public void goDead(){
+        //將對象狀態修改為DEAD
+        state = DEAD;
+    }
+
 
 }

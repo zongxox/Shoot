@@ -5,7 +5,7 @@ import java.util.Random;
 
 //小蜜蜂
 //繼承飛行物
-public class Bee extends FlyingObject {
+public class Bee extends FlyingObject implements EnemyAward{
     private int xSpeed;//x座標移動速度
     private int ySpeed;//y座標移動速度
     private int awardType; //英雄機打到之後給予獎勵類型
@@ -42,5 +42,11 @@ public class Bee extends FlyingObject {
         if (x <= 0 || x >= World.WIDTH - width) {
            xSpeed *= -1;//則切換方向(正變負,負變正)
         }
+    }
+
+    //重寫getAwardType獲取獎勵類型
+    @Override
+    public int getAwardType() {
+        return awardType;
     }
 }

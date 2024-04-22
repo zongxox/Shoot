@@ -5,7 +5,7 @@ import java.util.Random;
 
 //小敵機
 //繼承飛行物
-public class Airplane extends FlyingObject {
+public class Airplane extends FlyingObject implements EnemyScore{
     private int speed;//移動速度
 
     //構造方法
@@ -35,4 +35,10 @@ public class Airplane extends FlyingObject {
         y += speed;//向下
     }
 
+    //重寫getScore得分
+    @Override
+    public int getScore() {
+        //打掉小敵機,玩家得1分
+        return 1;
+    }
 }

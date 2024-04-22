@@ -11,9 +11,16 @@ public class Images {
     public static BufferedImage[] airs; //小敵機圖片數組
     public static BufferedImage[] bairs;//大敵機圖片數組
     public static BufferedImage[] bees; //小蜜蜂圖片數組
+    public static BufferedImage start;//啟動圖
+    public static BufferedImage pause;//暫停圖
+    public static BufferedImage gameover;//遊戲結束圖
+
 
     //給圖片做初始化
     static {
+        start = readImage("start.png");//啟動圖
+        pause = readImage("pause.png");//暫停圖
+        gameover = readImage("gameover.png");//遊戲結束圖
         sky = readImage("background.png");//天空
         bullet = readImage("bullet.png");//子彈
         heros = new BufferedImage[2]; //兩張圖片

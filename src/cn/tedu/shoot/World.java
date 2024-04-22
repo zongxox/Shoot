@@ -13,6 +13,12 @@ import java.util.TimerTask;
 public class World extends JPanel {
     public static final int WIDTH = 400;//視窗寬
     public static final int HEIGHT = 700;//視窗高
+    public static final int START = 0;   //啟動狀態
+    public static final int RUNNING = 1; //運行狀態
+    public static final int PAUSE = 2;   //暫停狀態
+    public static final int GAME_OVER = 3;   //結束狀態
+    private int state = START; //當前狀態(默認為啟動狀態)
+
 
     //窗口天空對象
     private Sky sky = new Sky();
@@ -80,16 +86,68 @@ public class World extends JPanel {
     //刪除超過視窗的子彈和敵人,優化內存
     public void outOfBoundsAction(){
         for (int i = 0; i < enemies.length; i++){//敵人
-            if (enemies[i].isOutOfBounds()){
+            if (enemies[i].isOutOfBounds() || enemies[i].isRemove()){
                 enemies[i] = enemies[enemies.length-1];
                 enemies = Arrays.copyOf(enemies, enemies.length-1);
             }
         }
         for (int i = 0; i < bullets.length; i++){//子彈
-            if (bullets[i].isOutOfBounds()){
+            if (bullets[i].isOutOfBounds() || bullets[i].isRemove()){
                 bullets[i] = bullets[bullets.length-1];
                 bullets = Arrays.copyOf(bullets, bullets.length-1);
             }
+        }
+    }
+
+    //玩家的得分
+    private int score = 0;
+
+    //子彈與敵人的碰撞
+    public void  bulletBangAction(){//每10毫秒跑一次
+        for (int i = 0; i < bullets.length; i++) {//循環子彈
+            Bullet b = bullets[i];//獲取每一個子彈
+            for (int j = 0; j < enemies.length; j++) {//循環敵人
+                FlyingObject f = enemies[j];//獲取每一個敵人
+                if (b.isLive() && f.isLive() && f.isHit(b)){//若都活者並且還撞上了
+                    b.goDead();//子彈死去
+                    f.goDead();//敵人死去
+                    if (f instanceof EnemyScore){//若被撞對象能得分
+                        EnemyScore es = (EnemyScore) f;//將被撞對象強轉為得分接口
+                        score += es.getScore();//玩家得分
+                    }
+                    if (f instanceof EnemyAward){//若被撞對象能得獎例
+                        EnemyAward ea = (EnemyAward) f;//將被撞對象強轉為獎勵接口
+                        int type = ea.getAwardType();//獲取獎勵類型
+                        switch (type){//根據獎勵類型來獲取不同的獎勵
+                            case EnemyAward.FIRE://若為火力值
+                                hero.addFire();  //則英雄機增加火力
+                                break;
+                            case EnemyAward.LIFE://若為命
+                                hero.addLife();  //則英雄機增加命
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //英雄機與敵人的碰撞
+    public void heroBangAction(){
+        for (int i = 0; i < enemies.length; i++) {//循環所有敵人
+            FlyingObject f = enemies[i];//獲取每一個敵人
+            if (hero.isLive() && f.isLive() && f.isHit(hero)){//若都活者,並且撞上了
+                f.goDead();//敵人去死
+                hero.subtractLife();//英雄機減命
+                hero.clearFire();//英雄機火力初始化
+            }
+        }
+    }
+
+    //檢測遊戲結束
+    public void checkGameOverAction(){
+        if (hero.getLife() <= 0){//若英雄機命數<=0,表示遊戲結束
+            state = GAME_OVER; //則當前狀態修改為遊戲結束狀態
         }
     }
 
@@ -99,11 +157,45 @@ public class World extends JPanel {
         MouseAdapter m = new MouseAdapter() {
             //重寫mouseMoved滑鼠移動事件
             public void mouseMoved(MouseEvent e) {
-                int x = e.getX();//獲取滑鼠x座標
-                int y = e.getY();//獲取滑鼠x座標
-                hero.moveTo(x, y);//英雄機移動
+                if (state == RUNNING){//僅在運行狀態下執行
+                    int x = e.getX();//獲取滑鼠x座標
+                    int y = e.getY();//獲取滑鼠x座標
+                    hero.moveTo(x, y);//英雄機移動
+                }
             }
-        };//滑鼠監聽器
+
+            //重寫mouseClicked滑鼠點擊事件
+            public void mouseClicked(MouseEvent e){
+                switch (state){//根據當前不同狀態做不同處裡
+                    case START:          //啟動狀態時
+                        state = RUNNING; //修改為運行狀態
+                        break;
+                    case GAME_OVER:      //遊戲結束狀態時
+                        score = 0;       //遊戲初始化
+                        sky = new Sky();
+                        hero = new Hero();
+                        enemies = new FlyingObject[0];
+                        bullets = new Bullet[0];
+                        state = START;   //修改為啟動狀態
+                        break;
+                }
+            }
+
+            //重寫mouseExited滑鼠移出視窗事件
+            public void mouseExited(MouseEvent e){
+                if (state == RUNNING){//運行狀態時
+                    state = PAUSE;    //修改為暫停狀態
+                }
+            }
+
+            //重寫mouseEntered滑鼠移入視窗事件
+            public void mouseEntered(MouseEvent e){
+                if (state == PAUSE){//暫停狀態時
+                    state = RUNNING;//修改為運行狀態
+                }
+            }
+
+            };//滑鼠監聽器
         this.addMouseListener(m);
         this.addMouseMotionListener(m);
 
@@ -112,10 +204,15 @@ public class World extends JPanel {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {//每10毫秒跑一次
-                enterAction();//每10毫秒敵人入場一次
-                shootAction();//每10毫秒子彈入場一次
-                stepAction();//飛行物移動
-                outOfBoundsAction();//刪除超過視窗的子彈和敵人
+                if (state == RUNNING){//僅在運行狀態下執行
+                    enterAction();//每10毫秒敵人入場一次
+                    shootAction();//每10毫秒子彈入場一次
+                    stepAction();//飛行物移動
+                    outOfBoundsAction();//刪除超過視窗的子彈和敵人
+                    bulletBangAction();//子彈與敵人的碰撞
+                    heroBangAction();//英雄機與敵人的碰撞
+                    checkGameOverAction();//檢測遊戲結束
+                }
                 repaint();//重新調用paint
             }
         }, intervel, intervel);//定時計畫表
@@ -129,11 +226,25 @@ public class World extends JPanel {
         g.drawImage(hero.getImage(), hero.x, hero.y, null);//英雄機
         for (int i = 0; i < enemies.length; i++) {//所有敵人
             FlyingObject f = enemies[i]; //獲取每一個敵人
-            g.drawImage(f.getImage(), f.x, f.y, null);//循環敵人
+            g.drawImage(f.getImage(), f.x, f.y, null);//畫敵人
         }
         for (int i = 0; i < bullets.length; i++) {
             Bullet b = bullets[i];
-            g.drawImage(b.getImage(), b.x, b.y, null);//循環子彈
+            g.drawImage(b.getImage(), b.x, b.y, null);//畫子彈
+        }
+        g.drawString("SCORE:" + score,10,25 );//視窗左上分數
+        g.drawString("LIFE:" + hero.getLife(), 10, 45);//視窗左上命數
+
+        switch (state){//根據當前狀態畫不同的圖
+            case START: //啟動狀態下畫啟動圖
+                g.drawImage(Images.start, 0, 0, null);
+                break;
+            case PAUSE: //暫停狀態下畫暫停圖
+                g.drawImage(Images.pause, 0, 0, null);
+                break;
+            case GAME_OVER: //遊戲結束狀態下畫遊戲結束圖
+                g.drawImage(Images.gameover, 0, 0, null);
+                break;
         }
     }
 
